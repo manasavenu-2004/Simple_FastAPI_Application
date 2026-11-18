@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: fastapi-app
-          image: manasavenu2004/fastapi-app:latest
+          image: manasavenu2004/fastapi-app:3
           imagePullPolicy: Always
 
           ports:
