@@ -67,39 +67,38 @@ pipeline {
             }
         }
 
-        stage('Update Manifest Repo') {
-            steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: "${GIT_CREDENTIALS_ID}",
-                        usernameVariable: 'GH_USER',
-                        passwordVariable: 'GH_TOKEN'
-                    )
-                ]) {
-                    sh '''
-                        git remote set-url origin \
-                        "https://${GH_USER}:${GH_TOKEN}@github.com/manasavenu-2004/Simple_FastAPI_Application.git"
+     stage('Update Manifest Repo') {
+    steps {
+        withCredentials([
+            usernamePassword(
+                credentialsId: "${GIT_CREDENTIALS_ID}",
+                usernameVariable: 'GH_USER',
+                passwordVariable: 'GH_TOKEN'
+            )
+        ]) {
+            sh '''
+                git remote set-url origin \
+                "https://${GH_USER}:${GH_TOKEN}@github.com/manasavenu-2004/Simple_FastAPI_Application.git"
 
-                        git pull --rebase origin ${MANIFEST_BRANCH}
+                git pull --rebase origin ${MANIFEST_BRANCH}
 
-                        sed -i "s|image: .*|image: ${DOCKER_IMAGE}:${BUILD_NUMBER}|" manifests/Deployment.yaml
+                sed -i "s|image: .*|image: ${DOCKER_IMAGE}:${BUILD_NUMBER}|" manifests/Deployment.yaml
 
-                        git config user.name "manasavenu-2004"
-                        git config user.email "manasavenu88914@gmail.com"
+                git config user.name "manasavenu-2004"
+                git config user.email "manasavenu88914@gmail.com"
 
-                        git add manifests/Deployment.yaml
+                git add manifests/Deployment.yaml
 
-                        if ! git diff --cached --quiet; then
-                            git commit -m "Update FastAPI image to ${BUILD_NUMBER} [skip ci]"
-                            git push origin ${MANIFEST_BRANCH}
-                        else
-                            echo "No manifest changes to commit."
-                        fi
-                    '''
-                }
-            }
+                if ! git diff --cached --quiet; then
+                    git commit -m "Update FastAPI image to ${BUILD_NUMBER} [skip ci]"
+                    git push origin HEAD:${MANIFEST_BRANCH}
+                else
+                    echo "No manifest changes to commit."
+                fi
+            '''
         }
     }
+}
 
     post {
         success {
